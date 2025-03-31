@@ -1,37 +1,27 @@
-version: "3.2"
-
 services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_DATABASE: supermarketdb
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password --lower-case-table-names=1
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-#  app:
-#    build:
-#      context: .
-#      dockerfile: backend/Dockerfile
-#    ports:
-#      - "8080:8080"
+#  mysql:
+#    image: mysql:8.0
 #    environment:
-#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/supermarketdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: root
-#      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect
-#    depends_on:
-#      mysql:
-#        condition: service_healthy
+#      MYSQL_DATABASE: supermarketdb
+#      MYSQL_ROOT_PASSWORD: root
+#    ports:
+#      - "3306:3306"
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+#    command: --default-authentication-plugin=mysql_native_password --lower-case-table-names=1
+#    healthcheck:
+#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+#      interval: 5s
+#      timeout: 5s
+#      retries: 5
+#      start_period: 10s
 
-volumes:
-  mysql_data:
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "8080:8080"
+
+#volumes:
+#  mysql_data:
