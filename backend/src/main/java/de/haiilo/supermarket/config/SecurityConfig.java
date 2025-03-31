@@ -41,13 +41,9 @@ public class SecurityConfig implements WebMvcConfigurer {
                 @Override
                 protected Resource getResource(String resourcePath, Resource location) throws IOException {
                     Resource requestedResource = location.createRelative(resourcePath);
-                    
-                    // Return the requested resource if it exists
                     if (requestedResource.exists() && requestedResource.isReadable()) {
                         return requestedResource;
                     }
-                    
-                    // Otherwise, return index.html for Angular routing
                     return new ClassPathResource("/static/index.html");
                 }
             });

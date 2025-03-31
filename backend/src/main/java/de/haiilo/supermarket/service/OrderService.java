@@ -15,6 +15,7 @@ import de.haiilo.supermarket.util.OfferCalculator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -46,11 +47,10 @@ public class OrderService {
     }
 
     private Map<Long, Item> fetchItemsById(CheckoutRequest request) {
-        return itemRepository.findAllById(
-                request.items().stream()
-                    .map(cartItem -> cartItem.item().id())
-                    .collect(Collectors.toSet())
-            ).stream()
+        Set<Long> itemIds = request.items().stream()
+            .map(cartItem -> cartItem.item().id())
+            .collect(Collectors.toSet());
+        return itemRepository.findAllById(itemIds).stream()
             .collect(Collectors.toMap(Item::getId, Function.identity()));
     }
 

@@ -16,7 +16,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemDto> getItems() {
-        // FIXME Without Pageable for assessment task
+        // TODO Without Pageable just because it's an assessment task
         return itemRepository.findAll().stream()
             .map(itemMapper::toDto)
             .toList();
