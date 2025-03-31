@@ -22,7 +22,6 @@
 
 		<spring-security.version>5.7.8</spring-security.version>
 		<springdoc.version>1.7.0</springdoc.version>
-		<mysql-connector.version>8.0.33</mysql-connector.version>
 		<frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
 		<maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -45,11 +44,6 @@
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-ui</artifactId>
 				<version>${springdoc.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.mysql</groupId>
-				<artifactId>mysql-connector-j</artifactId>
-				<version>${mysql-connector.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.h2database</groupId>
