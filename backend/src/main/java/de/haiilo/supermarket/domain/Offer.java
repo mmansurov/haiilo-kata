@@ -1,15 +1,24 @@
 package de.haiilo.supermarket.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
-@Table(name = "offers", indexes = {
-    @Index(name = "idx_offers_item_createdAt", columnList = "item_id,effective_from DESC"),
+@Table(name = "offer", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_offer_item_created_at", columnNames = {"item_id", "created_at"})
 })
 @Getter
 @Setter
@@ -22,12 +31,13 @@ public class Offer extends OfferSnapshot implements Serializable {
     @JoinColumn(name = "item_id")
     private Item item;
 
-    @Column(name = "effective_from")
-    private LocalDateTime effectiveFrom;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -38,6 +48,7 @@ public class Offer extends OfferSnapshot implements Serializable {
 
     @Override
     public int hashCode() {
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 }

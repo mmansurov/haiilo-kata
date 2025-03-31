@@ -1,6 +1,5 @@
 package de.haiilo.supermarket.domain;
 
-import java.math.BigDecimal;
 import javax.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -20,5 +19,5 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode
 public abstract class OfferSnapshot {
     private Integer quantity;
-    private BigDecimal discountPercentage;
+    private Integer discountPercentage; // Stored as whole number, e.g., 33 means 33%
 }
