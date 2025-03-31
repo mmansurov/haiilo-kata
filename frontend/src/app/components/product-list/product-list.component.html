@@ -1,0 +1,21 @@
+<ng-container *ngIf="items$ | async as items; else loading">
+  <div class="product-card" *ngFor="let item of items">
+    <h3>{{ item.name }}</h3>
+    <div class="price-info">
+      <div class="offer" *ngIf="item.currentOffer">
+        {{ item.currentOffer.quantity }} for {{ item.currentOffer.finalPrice }}€
+      </div>
+      <div class="regular-price">
+        1 for {{ item.currentPriceValue }}€
+      </div>
+    </div>
+  </div>
+  <div class="no-products" *ngIf="items.length === 0">
+    <p>No products available.</p>
+  </div>
+</ng-container>
+<ng-template #loading>
+  <div class="loading">
+    <p>Loading products...</p>
+  </div>
+</ng-template>
