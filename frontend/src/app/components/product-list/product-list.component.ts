@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { combineLatest, map } from 'rxjs';
 import { ItemService } from '../../services/item.service';
 import { CartService } from '../../services/cart.service';
 import { Item } from '../../models/item.model';
-import { combineLatest, map } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',

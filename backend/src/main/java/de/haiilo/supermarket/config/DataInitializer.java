@@ -5,6 +5,7 @@ import de.haiilo.supermarket.domain.Offer;
 import de.haiilo.supermarket.domain.Price;
 import de.haiilo.supermarket.repository.ItemRepository;
 import de.haiilo.supermarket.repository.OfferRepository;
+import de.haiilo.supermarket.util.OfferCalculator;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,8 +35,7 @@ public class DataInitializer {
             apple.setCurrentOffer(appleOffer);
             apple.getOffers().add(appleOffer);
 
-            // TODO Calculation logic
-            Integer appleOfferPrice = 45;
+            Integer appleOfferPrice = OfferCalculator.calculateOfferPrice(apple);
             applePrice.setCalculatedOfferPrice(appleOfferPrice);
             itemRepository.save(apple);
 
@@ -58,8 +58,7 @@ public class DataInitializer {
             banana.setCurrentOffer(bananaOffer);
             banana.getOffers().add(bananaOffer);
 
-            // TODO Calculation logic
-            Integer bananaOfferPrice = 130;
+            Integer bananaOfferPrice = OfferCalculator.calculateOfferPrice(banana);
             bananaPrice.setCalculatedOfferPrice(bananaOfferPrice);
             itemRepository.save(banana);
 

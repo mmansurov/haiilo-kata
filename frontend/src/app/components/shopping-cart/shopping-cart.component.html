@@ -20,3 +20,23 @@
     </button>
   </div>
 </div>
+
+<ng-container *ngIf="checkoutError$ | async as error">
+  <div *ngIf="error.message">
+    <div class="alert-content">
+      <p>{{ error.message }}</p>
+      <div *ngIf="error.itemWithPriceChange && error.actualPrice">
+        <p>
+          <strong>{{ error.itemWithPriceChange.name }}</strong> price has changed:
+        </p>
+        <p>
+          <span>{{ error.itemWithPriceChange.currentPriceValue }}€</span> →
+          <span>{{ error.actualPrice }}€</span>
+        </p>
+      </div>
+    </div>
+    <div>
+      <button (click)="refreshPrices()">Update Prices</button>
+    </div>
+  </div>
+</ng-container>

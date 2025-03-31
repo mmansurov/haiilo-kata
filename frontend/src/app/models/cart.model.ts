@@ -5,3 +5,22 @@ export interface CartItem {
   quantity: number;
   totalPrice?: number;
 }
+
+export interface CheckoutRequest {
+  items: CartItem[];
+  total: number;
+}
+
+export interface CheckoutResponse {
+  success: boolean;
+  errorMessage?: string;
+  itemIdWithPriceChange?: number;
+  actualPrice?: number;
+  total?: number;
+}
+
+export interface CheckoutError {
+  message: string | null;
+  itemWithPriceChange: Item | null;
+  actualPrice: number | null;
+}

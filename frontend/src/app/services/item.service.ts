@@ -15,6 +15,10 @@ export class ItemService {
   constructor(private http: HttpClient) {
   }
 
+  getItemsValue(): Item[] {
+    return this.itemsSubject.getValue();
+  }
+
   loadItems(): void {
     this.http.get<Item[]>(`${environment.apiUrl}/items`).subscribe(this.itemsSubject);
   }
