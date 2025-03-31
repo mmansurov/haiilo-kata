@@ -20,6 +20,6 @@ export class ItemService {
   }
 
   loadItems(): void {
-    this.http.get<Item[]>(`${environment.apiUrl}/items`).subscribe(this.itemsSubject);
+    this.http.get<Item[]>(`${environment.apiUrl}/items`).subscribe((items) => this.itemsSubject.next(items));
   }
 }

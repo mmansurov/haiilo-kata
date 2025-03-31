@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-// TODO call in RabbitMQ listener when new price is published
 public class PriceService {
     private final ItemRepository itemRepository;
     private final PriceRepository priceRepository;
@@ -23,7 +22,7 @@ public class PriceService {
         Item item = itemRepository.findById(priceDto.itemId())
             .orElseThrow(() -> new EntityNotFoundException("Item not found with ID: " + priceDto.itemId()));
 
-        Price newPrice = new Price();
+        var newPrice = new Price();
         newPrice.setItem(item);
         newPrice.setValue(priceDto.value());
         item.setCurrentPrice(newPrice);

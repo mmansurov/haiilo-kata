@@ -30,6 +30,11 @@ spring:
   output:
     ansi:
       enabled: always
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: kn
+    password: kn
 
 logging:
   level:

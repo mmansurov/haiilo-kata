@@ -1,20 +1,25 @@
 services:
-#  mysql:
-#    image: mysql:8.0
-#    environment:
-#      MYSQL_DATABASE: supermarketdb
-#      MYSQL_ROOT_PASSWORD: root
-#    ports:
-#      - "3306:3306"
-#    volumes:
-#      - mysql_data:/var/lib/mysql
-#    command: --default-authentication-plugin=mysql_native_password --lower-case-table-names=1
-#    healthcheck:
-#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
-#      interval: 5s
-#      timeout: 5s
-#      retries: 5
-#      start_period: 10s
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_PASS=kn
+      - RABBITMQ_DEFAULT_USER=kn
+    container_name: 'rabbitmq'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    # Use ephemeral storage to ensure queue is cleared on restart
+    tmpfs:
+      - /var/lib/rabbitmq
+
+  rabbitmq-publisher:
+    image: rabbitmq-publisher
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      PUBLISH_FREQUENCY: 10
+      INITIAL_DELAY: 30
+    depends_on:
+      - rabbitmq
 
   app:
     build:
@@ -22,6 +27,6 @@ services:
       dockerfile: backend/Dockerfile
     ports:
       - "8080:8080"
-
-#volumes:
-#  mysql_data:
+    depends_on:
+      - rabbitmq
+      - rabbitmq-publisher
