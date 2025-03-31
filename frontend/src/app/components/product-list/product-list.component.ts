@@ -11,8 +11,7 @@ import { Item } from '../../models/item.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductListComponent implements OnInit {
-  readonly items$ = this.itemService.items$;
-  readonly itemWithQuantity$ = combineLatest([this.items$, this.cartService.cartItems$]).pipe(
+  readonly itemWithQuantity$ = combineLatest([this.itemService.items$, this.cartService.cartItems$]).pipe(
     map(([items, cartItems]) =>
       items.map(item => ({
         item,

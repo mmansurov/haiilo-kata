@@ -1,0 +1,59 @@
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  .price-info {
+    margin-bottom: 1rem;
+
+    .offer {
+      color: #27ae60;
+      font-weight: 500;
+    }
+
+    .regular-price {
+      color: #7f8c8d;
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+
+    button {
+      flex: 1;
+      padding: 0.5rem;
+      font-weight: 500;
+
+      &.btn-add {
+        background: #2ecc71;
+        color: white;
+      }
+
+      &.btn-remove {
+        background: #e74c3c;
+        color: white;
+
+        &:disabled {
+          background: #ccc;
+          color: #999;
+        }
+      }
+    }
+  }
+}

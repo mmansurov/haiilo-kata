@@ -1,0 +1,137 @@
+.cart-sidebar {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+
+  // Cart header
+  .cart-header {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+
+    h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+
+  // Cart items
+  .cart-items {
+    overflow-y: auto;
+
+    .cart-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #ddd;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .item-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .item-name {
+          flex: 1;
+        }
+
+        .item-quantity {
+          min-width: 30px;
+          text-align: center;
+          color: #666;
+        }
+
+        .item-total {
+          font-weight: 500;
+          color: #27ae60;
+          min-width: 60px;
+          text-align: right;
+        }
+      }
+    }
+  }
+
+  // Cart footer
+  .cart-footer {
+    padding: 1rem;
+    border-top: 1px solid #ddd;
+
+    .total {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #f1c40f;
+      color: #2c3e50;
+      font-weight: 500;
+
+      &:disabled {
+        background: #ddd;
+        color: #95a5a6;
+      }
+    }
+  }
+}
+
+// Price change alert
+.alert {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  max-width: 300px;
+  z-index: 1000;
+  border-left: 4px solid #e74c3c;
+
+  .alert-content {
+    h3 {
+      margin: 0 0 0.5rem;
+      color: #e74c3c;
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin: 0.25rem 0;
+      color: #666;
+    }
+  }
+
+  .alert-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+
+    button {
+      padding: 0.5rem 1rem;
+
+      &.btn-primary {
+        background: #3498db;
+        color: white;
+      }
+
+      &.btn-secondary {
+        background: #ecf0f1;
+        color: #2c3e50;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
+}
