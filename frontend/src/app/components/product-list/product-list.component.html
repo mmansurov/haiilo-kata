@@ -1,17 +1,23 @@
-<ng-container *ngIf="items$ | async as items; else loading">
-  <div class="product-card" *ngFor="let item of items">
-    <h3>{{ item.name }}</h3>
+<ng-container *ngIf="(itemWithQuantity$ | async) as itemsWithQuantity">
+  <div class="product-card" *ngFor="let item of itemsWithQuantity">
+    <h3>{{ item.item.name }}</h3>
     <div class="price-info">
-      <div class="offer" *ngIf="item.currentOffer">
-        {{ item.currentOffer.quantity }} for {{ item.currentOffer.finalPrice }}€
+      <div class="offer" *ngIf="item.item.currentOffer">
+        {{ item.item.currentOffer.quantity }} for {{ item.item.currentOffer.finalPrice }}€
       </div>
       <div class="regular-price">
-        1 for {{ item.currentPriceValue }}€
+        1 for {{ item.item.currentPriceValue }}€
       </div>
     </div>
-  </div>
-  <div class="no-products" *ngIf="items.length === 0">
-    <p>No products available.</p>
+    <div class="actions">
+      <button class="btn-add" (click)="addToCart(item.item)">Add</button>
+      <button
+          class="btn-remove"
+          (click)="removeFromCart(item.item)"
+          [disabled]="item.quantity === 0">
+        Remove
+      </button>
+    </div>
   </div>
 </ng-container>
 <ng-template #loading>
