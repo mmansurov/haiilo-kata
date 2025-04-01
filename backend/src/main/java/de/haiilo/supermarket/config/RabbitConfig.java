@@ -8,11 +8,13 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
+@Profile("!test")
 public class RabbitConfig {
     public static final String EXCHANGE_NAME = "amq.fanout";
     public static final String QUEUE_NAME = "price.queue";

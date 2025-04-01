@@ -7,6 +7,7 @@
 4. ...ToOne associations preferable FetchType.LAZY
 5. rename entities, align
 6. prevent multiple clicks on checkout with slow service, block button, exhaustMap
+7. openapi
 
 ## Quick Start
 
