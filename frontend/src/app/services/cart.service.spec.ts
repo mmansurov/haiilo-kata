@@ -1,17 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { CartService } from './cart.service';
 import { ItemService } from './item.service';
-import { PriceCalculatorService } from './price-calculator.service';
-import { Item } from '../models/item.model';
 import { of } from 'rxjs';
+import { Item } from '../models/item.model';
 import { environment } from '../../environments/environment';
+import { PriceCalculator } from '../utils/price-calculator';
 
 describe('CartService', () => {
   let service: CartService;
   let httpMock: HttpTestingController;
   let itemServiceSpy: jasmine.SpyObj<ItemService>;
-  let priceCalculatorSpy: jasmine.SpyObj<PriceCalculatorService>;
 
   const mockItem1: Item = {
     id: 1,
@@ -31,34 +30,24 @@ describe('CartService', () => {
   };
 
   beforeEach(() => {
-    const itemSpy = jasmine.createSpyObj('ItemService', ['getItemsValue', 'loadItems'], {
+    const itemSpy = jasmine.createSpyObj('ItemService', ['loadItems'], {
       items$: of([mockItem1, mockItem2])
     });
     
-    const calculatorSpy = jasmine.createSpyObj('PriceCalculatorService', [
-      'calculateItemTotal',
-      'calculateCartTotal'
-    ]);
-    
-    // Set up default behavior for the calculator spy
-    calculatorSpy.calculateItemTotal.and.callFake((item, quantity) => item.currentPriceValue * quantity);
-    calculatorSpy.calculateCartTotal.and.callFake((items) => 
-      items.reduce((sum, item) => sum + (item.totalPrice || 0), 0)
-    );
+    spyOn(PriceCalculator, 'calculateItemTotal').and.callThrough();
+    spyOn(PriceCalculator, 'calculateCartTotal').and.callThrough();
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         CartService,
         { provide: ItemService, useValue: itemSpy },
-        { provide: PriceCalculatorService, useValue: calculatorSpy }
       ]
     });
     
     service = TestBed.inject(CartService);
     httpMock = TestBed.inject(HttpTestingController);
     itemServiceSpy = TestBed.inject(ItemService) as jasmine.SpyObj<ItemService>;
-    priceCalculatorSpy = TestBed.inject(PriceCalculatorService) as jasmine.SpyObj<PriceCalculatorService>;
   });
 
   afterEach(() => {
@@ -70,145 +59,141 @@ describe('CartService', () => {
   });
 
   describe('addToCart', () => {
-    it('should add a new item to the cart', () => {
-      // Given
-      priceCalculatorSpy.calculateItemTotal.and.returnValue(10);
-      
+    it('should add a new item to the cart', waitForAsync(() => {
       // When
       service.addToCart(mockItem1);
       
-      // Then - Get the current value directly from the subject
-      const cartItems = (service as any).cartItemsSubject.getValue();
-      expect(cartItems.length).toBe(1);
-      expect(cartItems[0].item).toEqual(mockItem1);
-      expect(cartItems[0].quantity).toBe(1);
-      expect(cartItems[0].totalPrice).toBe(10);
-      expect(priceCalculatorSpy.calculateItemTotal).toHaveBeenCalledWith(mockItem1, 1);
-    });
+      // Then
+      service.cartItems$.subscribe(cartItems => {
+        expect(cartItems.length).toBe(1);
+        expect(cartItems[0].item).toEqual(mockItem1);
+        expect(cartItems[0].quantity).toBe(1);
+        expect(cartItems[0].totalPrice).toBe(10);
+      });
+    }));
     
-    it('should increment quantity for existing item', () => {
-      // Given
-      priceCalculatorSpy.calculateItemTotal.and.returnValues(10, 20);
-      
+    it('should increment quantity for existing item', waitForAsync(() => {
       // When
       service.addToCart(mockItem1);
       service.addToCart(mockItem1);
       
-      // Then - Get the current value directly from the subject
-      const cartItems = (service as any).cartItemsSubject.getValue();
-      expect(cartItems.length).toBe(1);
-      expect(cartItems[0].item).toEqual(mockItem1);
-      expect(cartItems[0].quantity).toBe(2);
-      expect(cartItems[0].totalPrice).toBe(20);
-      expect(priceCalculatorSpy.calculateItemTotal).toHaveBeenCalledWith(mockItem1, 2);
-    });
+      // Then
+      service.cartItems$.subscribe(cartItems => {
+        expect(cartItems.length).toBe(1);
+        expect(cartItems[0].item).toEqual(mockItem1);
+        expect(cartItems[0].quantity).toBe(2);
+        expect(cartItems[0].totalPrice).toBe(20);
+      });
+    }));
   });
 
   describe('removeFromCart', () => {
-    it('should decrement quantity for item with quantity > 1', () => {
-      // Given
-      priceCalculatorSpy.calculateItemTotal.and.returnValues(10, 20, 10);
-      
+    it('should decrement quantity for item with quantity > 1', waitForAsync(() => {
       // When
       service.addToCart(mockItem1);
       service.addToCart(mockItem1);
       service.removeFromCart(mockItem1);
       
-      // Then - Get the current value directly from the subject
-      const cartItems = (service as any).cartItemsSubject.getValue();
-      expect(cartItems.length).toBe(1);
-      expect(cartItems[0].item).toEqual(mockItem1);
-      expect(cartItems[0].quantity).toBe(1);
-      expect(cartItems[0].totalPrice).toBe(10);
-      expect(priceCalculatorSpy.calculateItemTotal).toHaveBeenCalledWith(mockItem1, 1);
-    });
+      // Then
+      service.cartItems$.subscribe(cartItems => {
+        expect(cartItems.length).toBe(1);
+        expect(cartItems[0].item).toEqual(mockItem1);
+        expect(cartItems[0].quantity).toBe(1);
+        expect(cartItems[0].totalPrice).toBe(10);
+      });
+    }));
     
-    it('should remove item from cart when quantity becomes 0', () => {
+    it('should remove item from cart when quantity becomes 0', waitForAsync(() => {
       // Given
-      priceCalculatorSpy.calculateItemTotal.and.returnValue(10);
       service.addToCart(mockItem1);
       
       // When
       service.removeFromCart(mockItem1);
       
-      // Then - Get the current value directly from the subject
-      const cartItems = (service as any).cartItemsSubject.getValue();
-      expect(cartItems.length).toBe(0);
-    });
+      // Then
+      service.cartItems$.subscribe(cartItems => {
+        expect(cartItems.length).toBe(0);
+      });
+    }));
     
-    it('should do nothing when trying to remove non-existent item', () => {
-      // Given, Empty cart
-
+    it('should do nothing when trying to remove non-existent item', waitForAsync(() => {
       // When
       service.removeFromCart(mockItem1);
       
-      // Then - Get the current value directly from the subject
-      const cartItems = (service as any).cartItemsSubject.getValue();
-      expect(cartItems.length).toBe(0);
-    });
+      // Then
+      service.cartItems$.subscribe(cartItems => {
+        expect(cartItems.length).toBe(0);
+      });
+    }));
   });
 
   describe('clearCart', () => {
-    it('should remove all items from the cart', () => {
+    it('should remove all items from the cart', waitForAsync(() => {
       // Given
-      priceCalculatorSpy.calculateItemTotal.and.returnValues(10, 15);
       service.addToCart(mockItem1);
       service.addToCart(mockItem2);
       
       // When
       service.clearCart();
       
-      // Then - Get the current value directly from the subject
-      const cartItems = (service as any).cartItemsSubject.getValue();
-      expect(cartItems.length).toBe(0);
-    });
+      // Then
+      service.cartItems$.subscribe(cartItems => {
+        expect(cartItems.length).toBe(0);
+      });
+    }));
   });
 
   describe('checkout', () => {
-    it('should return error observable when cart is empty', () => {
-      // Given, Empty cart
-
-      // When
-      service.checkout().subscribe();
+    it('should return error observable when cart is empty', waitForAsync(() => {
+      // Given - Empty cart
       
-      // Then - Get the current value directly from the subject
-      const error = (service as any).checkoutErrorSubject.getValue();
-      expect(error.message).toBe('Your cart is empty');
-    });
+      // When
+      service.checkout().subscribe(response => {
+        // Then
+        expect(response.errorMessage).toBe('Your cart is empty');
+        
+        // Also verify the error subject was updated
+        service.checkoutError$.subscribe(error => {
+          expect(error.message).toBe('Your cart is empty');
+          expect(error.itemWithPriceChange).toBeNull();
+          expect(error.actualPrice).toBeNull();
+        });
+      });
+    }));
     
-    it('should send checkout request and handle successful response', () => {
+    it('should send checkout request and handle successful response', waitForAsync(() => {
       // Given
-      priceCalculatorSpy.calculateItemTotal.and.returnValue(10);
-      priceCalculatorSpy.calculateCartTotal.and.returnValue(10);
       service.addToCart(mockItem1);
-      itemServiceSpy.getItemsValue.and.returnValue([mockItem1, mockItem2]);
       
       // When
-      service.checkout().subscribe();
-      const req = httpMock.expectOne(`${environment.apiUrl}/orders/checkout`);
-      req.flush({
-        total: 10
+      service.checkout().subscribe(() => {
+        // Then
+        service.cartItems$.subscribe(cartItems => {
+          expect(cartItems.length).toBe(0);
+        });
       });
       
-      // Then - Get the current value directly from the subject
-      const cartItems = (service as any).cartItemsSubject.getValue();
-      expect(cartItems.length).toBe(0);
-    });
+      // Handle the HTTP request
+      const req = httpMock.expectOne(`${environment.apiUrl}/orders/checkout`);
+      expect(req.request.method).toBe('POST');
+      req.flush({ total: 10 });
+    }));
   });
 
   describe('resetCheckoutError', () => {
-    it('should reset the checkout error', () => {
-      // Given
+    it('should reset the checkout error', waitForAsync(() => {
+      // Given - This will set an empty cart error
       service.checkout().subscribe();
       
       // When
       service.resetCheckoutError();
       
-      // Then - Get the current value directly from the subject
-      const error = (service as any).checkoutErrorSubject.getValue();
-      expect(error.message).toBeNull();
-      expect(error.itemWithPriceChange).toBeNull();
-      expect(error.actualPrice).toBeNull();
-    });
+      // Then - Check the checkoutError$ observable
+      service.checkoutError$.subscribe(error => {
+        expect(error.message).toBeNull();
+        expect(error.itemWithPriceChange).toBeNull();
+        expect(error.actualPrice).toBeNull();
+      });
+    }));
   });
 });

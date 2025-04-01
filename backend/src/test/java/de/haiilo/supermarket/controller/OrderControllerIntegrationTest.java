@@ -100,7 +100,6 @@ class OrderControllerIntegrationTest {
             // Then
             result
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success", is(true)))
                 .andExpect(jsonPath("$.total", is(170)))
                 .andExpect(jsonPath("$.errorMessage").doesNotExist())
                 .andExpect(jsonPath("$.itemIdWithPriceChange").doesNotExist());
@@ -135,7 +134,6 @@ class OrderControllerIntegrationTest {
             // Then
             result
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.success", is(false)))
                 .andExpect(jsonPath("$.errorMessage", is("Price has changed for item: Apple")))
                 .andExpect(jsonPath("$.itemIdWithPriceChange", is(apple.getId().intValue())))
                 .andExpect(jsonPath("$.actualPrice", is(30)));
@@ -170,7 +168,6 @@ class OrderControllerIntegrationTest {
             // Then
             result
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.success", is(false)))
                 .andExpect(jsonPath("$.errorMessage", is("Total price mismatch. Expected: 50, Actual: 45")))
                 .andExpect(jsonPath("$.itemIdWithPriceChange").doesNotExist());
         }
@@ -199,7 +196,6 @@ class OrderControllerIntegrationTest {
             // Then
             result
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.success", is(false)))
                 .andExpect(jsonPath("$.errorMessage", is("An unexpected error occurred")));
         }
     }

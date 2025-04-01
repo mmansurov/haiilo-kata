@@ -11,6 +11,11 @@ services:
     # Use ephemeral storage to ensure queue is cleared on restart
     tmpfs:
       - /var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   rabbitmq-publisher:
     image: rabbitmq-publisher
@@ -19,7 +24,8 @@ services:
       PUBLISH_FREQUENCY: 10
       INITIAL_DELAY: 30
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
   app:
     build:
@@ -28,5 +34,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - rabbitmq
-      - rabbitmq-publisher
+      rabbitmq:
+        condition: service_healthy
+      rabbitmq-publisher:
+        condition: service_started

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, of, combineLatest, map, catchError } from 'rxjs';
+import { BehaviorSubject, Observable, tap, of, combineLatest, map, take, switchMap, catchError } from 'rxjs';
 import { CartItem, CheckoutError, CheckoutRequest, CheckoutResponse } from '../models/cart.model';
 import { Item } from '../models/item.model';
 import { ItemService } from './item.service';
-import { PriceCalculatorService } from './price-calculator.service';
 import { environment } from '../../environments/environment';
+import { PriceCalculator } from '../utils/price-calculator';
 
 @Injectable({
   providedIn: 'root'
@@ -20,111 +20,125 @@ export class CartService {
 
   readonly checkoutError$ = this.checkoutErrorSubject.asObservable();
 
-  readonly cartItems$ = combineLatest([
-    this.cartItemsSubject,
-    this.itemService.items$
-  ]).pipe(
-    map(([cartItems, items]) => {
-      return cartItems.map(cartItem => {
-        const updatedItem = items.find(item => item.id === cartItem.item.id);
-        if (updatedItem) {
-          return {
-            ...cartItem,
-            item: updatedItem,
-            totalPrice: this.priceCalculator.calculateItemTotal(updatedItem, cartItem.quantity)
-          };
-        }
-        return cartItem;
-      });
-    })
-  );
+  readonly cartItems$ = combineLatest([this.cartItemsSubject, this.itemService.items$])
+    .pipe(
+      map(([cartItems, items]) => {
+        return cartItems.map(cartItem => {
+          const updatedItem = items.find(item => item.id === cartItem.item.id);
+          if (updatedItem) {
+            return {
+              ...cartItem,
+              item: updatedItem,
+              totalPrice: PriceCalculator.calculateItemTotal(updatedItem, cartItem.quantity)
+            };
+          }
+          return cartItem;
+        });
+      })
+    );
 
   readonly total$ = this.cartItems$.pipe(
-    map(items => this.priceCalculator.calculateCartTotal(items))
+    map(items => PriceCalculator.calculateCartTotal(items))
   );
 
   constructor(
     private http: HttpClient,
     private itemService: ItemService,
-    private priceCalculator: PriceCalculatorService
   ) {
   }
 
   addToCart(item: Item): void {
-    const currentItems = this.cartItemsSubject.getValue();
-    const existingItem = currentItems.find(cartItem => cartItem.item.id === item.id);
+    this.cartItems$.pipe(
+      take(1),
+      tap(currentItems => {
+        const existingItem = currentItems.find(cartItem => cartItem.item.id === item.id);
 
-    if (existingItem) {
-      // Item exists, increment quantity
-      const updatedItems = currentItems.map(cartItem =>
-        cartItem.item.id === item.id
-          ? {
-            ...cartItem,
-            quantity: cartItem.quantity + 1,
-            totalPrice: this.priceCalculator.calculateItemTotal(cartItem.item, cartItem.quantity + 1)
-          }
-          : cartItem
-      );
-      this.cartItemsSubject.next(updatedItems);
-    } else {
-      // New item, add to cart
-      const newCartItem = {
-        item,
-        quantity: 1,
-        totalPrice: this.priceCalculator.calculateItemTotal(item, 1)
-      };
-      this.cartItemsSubject.next([...currentItems, newCartItem]);
-    }
+        let updatedItems: CartItem[];
+        if (existingItem) {
+          // Item exists, increment quantity
+          updatedItems = currentItems.map(cartItem =>
+            cartItem.item.id === item.id
+              ? {
+                ...cartItem,
+                quantity: cartItem.quantity + 1,
+                totalPrice: PriceCalculator.calculateItemTotal(cartItem.item, cartItem.quantity + 1)
+              }
+              : cartItem
+          );
+        } else {
+          // New item, add to cart
+          const newCartItem = {
+            item,
+            quantity: 1,
+            totalPrice: PriceCalculator.calculateItemTotal(item, 1)
+          };
+          updatedItems = [...currentItems, newCartItem];
+        }
+        this.cartItemsSubject.next(updatedItems);
+      })
+    ).subscribe();
   }
 
   removeFromCart(item: Item): void {
-    const currentItems = this.cartItemsSubject.getValue();
-    const existingItem = currentItems.find(cartItem => cartItem.item.id === item.id);
+    this.cartItems$.pipe(
+      take(1),
+      tap(currentItems => {
+        const existingItem = currentItems.find(cartItem => cartItem.item.id === item.id);
 
-    if (!existingItem) return;
+        if (!existingItem) return;
 
-    let updatedItems: CartItem[];
-
-    if (existingItem.quantity > 1) {
-      updatedItems = currentItems.map(cartItem =>
-        cartItem.item.id === item.id
-          ? {
-            ...cartItem,
-            quantity: cartItem.quantity - 1,
-            totalPrice: this.priceCalculator.calculateItemTotal(cartItem.item, cartItem.quantity - 1)
-          }
-          : cartItem
-      );
-    } else {
-      updatedItems = currentItems.filter(cartItem => cartItem.item.id !== item.id);
-    }
-
-    this.cartItemsSubject.next(updatedItems);
+        let updatedItems: CartItem[];
+        if (existingItem.quantity > 1) {
+          updatedItems = currentItems.map(cartItem =>
+            cartItem.item.id === item.id
+              ? {
+                ...cartItem,
+                quantity: cartItem.quantity - 1,
+                totalPrice: PriceCalculator.calculateItemTotal(cartItem.item, cartItem.quantity - 1)
+              }
+              : cartItem
+          );
+        } else {
+          updatedItems = currentItems.filter(cartItem => cartItem.item.id !== item.id);
+        }
+        this.cartItemsSubject.next(updatedItems);
+      })
+    ).subscribe();
   }
 
   clearCart(): void {
     this.cartItemsSubject.next([]);
   }
 
+  resetCheckoutError(): void {
+    this.checkoutErrorSubject.next({
+      message: null,
+      itemWithPriceChange: null,
+      actualPrice: null
+    });
+  }
+
   checkout(): Observable<CheckoutResponse> {
     this.resetCheckoutError();
 
-    const cartItems = this.cartItemsSubject.getValue();
+    return this.cartItems$.pipe(
+      take(1),
+      switchMap(cartItems => this.processCheckout(cartItems))
+    );
+  }
 
+  private processCheckout(cartItems: CartItem[]): Observable<CheckoutResponse> {
     if (cartItems.length === 0) {
       const error = {message: 'Your cart is empty', itemWithPriceChange: null, actualPrice: null};
       this.checkoutErrorSubject.next(error);
       return of({errorMessage: error.message});
     }
 
-    const total = this.priceCalculator.calculateCartTotal(cartItems);
-
+    const total = PriceCalculator.calculateCartTotal(cartItems);
     const request: CheckoutRequest = {items: cartItems, total};
 
     return this.http.post<CheckoutResponse>(`${environment.apiUrl}/orders/checkout`, request).pipe(
-      tap(response => {
-        this.handleSuccessfulCheckout(response);
-      }),
+      tap(response => this.handleSuccessfulCheckout(response)),
       catchError(error => {
         this.handleFailedCheckout(error.error);
         throw error;
@@ -153,25 +167,16 @@ export class CartService {
   }
 
   private handlePriceChangeError(response: CheckoutResponse): void {
-    const items = this.itemService.getItemsValue();
-    const itemWithPriceChange = items.find(i => i.id === response.itemIdWithPriceChange) || null;
-
-    if (itemWithPriceChange && itemWithPriceChange.currentPriceValue !== response.actualPrice) {
-      this.checkoutErrorSubject.next({
-        message: response.errorMessage || 'Price has changed',
-        itemWithPriceChange,
-        actualPrice: response.actualPrice
-      });
-    } else {
-      this.handleSuccessfulCheckout(response);
-    }
-  }
-
-  resetCheckoutError(): void {
-    this.checkoutErrorSubject.next({
-      message: null,
-      itemWithPriceChange: null,
-      actualPrice: null
-    });
+    this.itemService.items$.pipe(
+      take(1),
+      tap(items => {
+        const itemWithPriceChange = items.find(i => i.id === response.itemIdWithPriceChange) || null;
+        this.checkoutErrorSubject.next({
+          message: response.errorMessage || 'Price has changed',
+          itemWithPriceChange,
+          actualPrice: response.actualPrice
+        });
+      })
+    ).subscribe();
   }
 }

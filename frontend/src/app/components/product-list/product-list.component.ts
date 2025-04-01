@@ -11,14 +11,15 @@ import { Item } from '../../models/item.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductListComponent implements OnInit {
-  readonly itemWithQuantity$ = combineLatest([this.itemService.items$, this.cartService.cartItems$]).pipe(
-    map(([items, cartItems]) =>
-      items.map(item => ({
-        item,
-        quantity: cartItems.find(ci => ci.item.id === item.id)?.quantity ?? 0
-      }))
-    )
-  );
+  readonly itemWithQuantity$ = combineLatest([this.itemService.items$, this.cartService.cartItems$])
+    .pipe(
+      map(([items, cartItems]) =>
+        items.map(item => ({
+          item,
+          quantity: cartItems.find(ci => ci.item.id === item.id)?.quantity ?? 0
+        }))
+      )
+    );
 
   constructor(
     private itemService: ItemService,

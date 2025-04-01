@@ -1,11 +1,8 @@
-import { TestBed } from '@angular/core/testing';
-import { PriceCalculatorService } from './price-calculator.service';
 import { Item } from '../models/item.model';
 import { CartItem } from '../models/cart.model';
+import { PriceCalculator } from './price-calculator';
 
-describe('PriceCalculatorService', () => {
-  let service: PriceCalculatorService;
-
+describe('PriceCalculator', () => {
   // Define items based on DataInitializer.java
   const apple: Item = {
     id: 1,
@@ -34,19 +31,10 @@ describe('PriceCalculatorService', () => {
     currentOffer: null
   };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(PriceCalculatorService);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-
   describe('calculateItemTotal', () => {
     it('should calculate regular price when no offer is available', () => {
       // When
-      const result = service.calculateItemTotal(peach, 3);
+      const result = PriceCalculator.calculateItemTotal(peach, 3);
       
       // Then
       expect(result).toBe(180);
@@ -54,7 +42,7 @@ describe('PriceCalculatorService', () => {
 
     it('should calculate regular price when quantity is less than offer quantity', () => {
       // When
-      const result = service.calculateItemTotal(apple, 1);
+      const result = PriceCalculator.calculateItemTotal(apple, 1);
       
       // Then
       expect(result).toBe(30);
@@ -62,7 +50,7 @@ describe('PriceCalculatorService', () => {
 
     it('should apply offer when quantity equals offer quantity', () => {
       // When
-      const result = service.calculateItemTotal(apple, 2);
+      const result = PriceCalculator.calculateItemTotal(apple, 2);
       
       // Then
       expect(result).toBe(45);
@@ -70,7 +58,7 @@ describe('PriceCalculatorService', () => {
 
     it('should apply offer and regular price for mixed quantities', () => {
       // When
-      const result = service.calculateItemTotal(apple, 5);
+      const result = PriceCalculator.calculateItemTotal(apple, 5);
       
       // Then
       expect(result).toBe(120);
@@ -78,7 +66,7 @@ describe('PriceCalculatorService', () => {
 
     it('should apply multiple offer sets correctly', () => {
       // When
-      const result = service.calculateItemTotal(banana, 7);
+      const result = PriceCalculator.calculateItemTotal(banana, 7);
       
       // Then
       expect(result).toBe(310);
@@ -107,7 +95,7 @@ describe('PriceCalculatorService', () => {
       ];
       
       // When
-      const result = service.calculateCartTotal(cartItems);
+      const result = PriceCalculator.calculateCartTotal(cartItems);
       
       // Then
       expect(result).toBe(235);
@@ -115,7 +103,7 @@ describe('PriceCalculatorService', () => {
 
     it('should handle empty cart', () => {
       // When
-      const result = service.calculateCartTotal([]);
+      const result = PriceCalculator.calculateCartTotal([]);
       
       // Then
       expect(result).toBe(0);
@@ -132,7 +120,7 @@ describe('PriceCalculatorService', () => {
       ];
       
       // When
-      const result = service.calculateCartTotal(cartItems);
+      const result = PriceCalculator.calculateCartTotal(cartItems);
       
       // Then
       expect(result).toBe(0);

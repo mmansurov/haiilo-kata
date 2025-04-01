@@ -25,8 +25,8 @@ describe('ItemService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('getItemsValue', () => {
-    it('should return the current value of items', () => {
+  describe('items$', () => {
+    it('should emit items when loadItems is called', (done) => {
       // Given
       const mockItems: Item[] = [
         {
@@ -36,15 +36,17 @@ describe('ItemService', () => {
           currentOffer: null
         }
       ];
+
+      // When
       service.loadItems();
       const req = httpMock.expectOne(`${environment.apiUrl}/items`);
       req.flush(mockItems);
 
-      // When
-      const result = service.getItemsValue();
-
       // Then
-      expect(result).toEqual(mockItems);
+      service.items$.subscribe(items => {
+        expect(items).toEqual(mockItems);
+        done();
+      });
     });
   });
 });
