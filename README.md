@@ -5,6 +5,8 @@
 2. TODOs
 3. use instancio jpa
 4. ...ToOne associations preferable FetchType.LAZY
+5. rename entities, align
+6. prevent multiple clicks on checkout with slow service, block button, exhaustMap
 
 ## Quick Start
 
