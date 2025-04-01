@@ -41,7 +41,6 @@ public class OrderService {
         orderRepository.save(order);
 
         return CheckoutResponse.builder()
-            .success(true)
             .total(total)
             .build();
     }

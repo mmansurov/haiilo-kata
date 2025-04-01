@@ -56,7 +56,7 @@ describe('ShoppingCartComponent', () => {
       }
     );
     
-    cartSpy.checkout.and.returnValue(of({ success: true, total: 20 }));
+    cartSpy.checkout.and.returnValue(of({ total: 20 }));
 
     await TestBed.configureTestingModule({
       declarations: [ShoppingCartComponent],

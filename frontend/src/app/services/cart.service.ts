@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, of, combineLatest, map } from 'rxjs';
+import { BehaviorSubject, Observable, tap, of, combineLatest, map, catchError } from 'rxjs';
 import { CartItem, CheckoutError, CheckoutRequest, CheckoutResponse } from '../models/cart.model';
 import { Item } from '../models/item.model';
 import { ItemService } from './item.service';
@@ -114,7 +114,7 @@ export class CartService {
     if (cartItems.length === 0) {
       const error = {message: 'Your cart is empty', itemWithPriceChange: null, actualPrice: null};
       this.checkoutErrorSubject.next(error);
-      return of({success: false, errorMessage: error.message});
+      return of({errorMessage: error.message});
     }
 
     const total = this.priceCalculator.calculateCartTotal(cartItems);
@@ -123,11 +123,11 @@ export class CartService {
 
     return this.http.post<CheckoutResponse>(`${environment.apiUrl}/orders/checkout`, request).pipe(
       tap(response => {
-        if (response.success) {
-          this.handleSuccessfulCheckout(response);
-        } else {
-          this.handleFailedCheckout(response);
-        }
+        this.handleSuccessfulCheckout(response);
+      }),
+      catchError(error => {
+        this.handleFailedCheckout(error.error);
+        throw error;
       })
     );
   }

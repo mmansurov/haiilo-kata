@@ -13,7 +13,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<CheckoutResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
         CheckoutResponse response = CheckoutResponse.builder()
-            .success(false)
             .errorMessage(ex.getMessage())
             .build();
         
@@ -23,7 +22,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PriceChangedException.class)
     public ResponseEntity<CheckoutResponse> handlePriceChangedException(PriceChangedException ex) {
         CheckoutResponse response = CheckoutResponse.builder()
-            .success(false)
             .errorMessage(ex.getMessage())
             .itemIdWithPriceChange(ex.getItemId())
             .actualPrice(ex.getActualPrice())
@@ -35,7 +33,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TotalMismatchException.class)
     public ResponseEntity<CheckoutResponse> handleTotalMismatchException(TotalMismatchException ex) {
         CheckoutResponse response = CheckoutResponse.builder()
-            .success(false)
             .errorMessage(ex.getMessage())
             .build();
         
@@ -45,7 +42,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CheckoutResponse> handleRuntimeException(RuntimeException ex) {
         CheckoutResponse response = CheckoutResponse.builder()
-            .success(false)
             .errorMessage("An unexpected error occurred")
             .build();
         

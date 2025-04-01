@@ -12,7 +12,6 @@ export interface CheckoutRequest {
 }
 
 export interface CheckoutResponse {
-  success: boolean;
   errorMessage?: string;
   itemIdWithPriceChange?: number;
   actualPrice?: number;

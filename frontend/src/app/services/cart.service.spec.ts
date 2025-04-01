@@ -187,7 +187,6 @@ describe('CartService', () => {
       service.checkout().subscribe();
       const req = httpMock.expectOne(`${environment.apiUrl}/orders/checkout`);
       req.flush({
-        success: true,
         total: 10
       });
       
