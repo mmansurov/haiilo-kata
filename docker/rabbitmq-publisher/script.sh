@@ -6,8 +6,8 @@ sleep ${INITIAL_DELAY}
 
 while :
 do
-  # Generate a random price value from the options: 40, 50, 60, or 70
-  PRICE_VALUES=(40 50 60 70)
+  # Generate a random price value from the options: 44, 53, 66 or 78
+  PRICE_VALUES=(44 53 66 78)
   RANDOM_INDEX=$((RANDOM % 4))
   PRICE_VALUE=${PRICE_VALUES[$RANDOM_INDEX]}
   

@@ -118,6 +118,7 @@ export class CartService {
     });
   }
 
+  // TODO prevent multiple clicks on checkout in case backend is slow, disable button, exhaustMap to ignore following clicks
   checkout(): Observable<CheckoutResponse> {
     this.resetCheckoutError();
 
