@@ -42,14 +42,15 @@ It's not the most DRY approach since some logic is duplicated, but it's a practi
 
 ## Project Structure
 
-The project is structured as a Spring Boot application with an Angular frontend:
+This is a multi-module Maven project consisting of:
 
-- **Backend**: Spring Boot application with JPA entities and REST controllers
-- **Frontend**: Angular application with components for item display and cart management
-- **RabbitMQ Listener**: Processes price updates and triggers recalculations
+- **Backend**: Spring Boot application with JPA entities and REST controllers.
+- **Frontend**: Angular application with components for item display and cart management.
+- **RabbitMQ Listener**: Processes price updates and triggers recalculations.
+
+Additionally, the project includes:
 - **Price Publisher**: A bash script (`docker/rabbitmq-publisher/script.sh`) that simulates price changes by:
   - Publishing random price values (44, 53, 66, or 78) to the RabbitMQ exchange
-  - Using the "amq.fanout" exchange with routing key "price"
   - Sending updates at configurable intervals (controlled by PUBLISH_FREQUENCY environment variable)
   - Including an initial delay before the first message (controlled by INITIAL_DELAY)
 
@@ -70,10 +71,13 @@ The application will be available at:
 ## Future Improvements
 
 1. Implement caching of frequently used data and rarely changed data (Offers are changed once a week according to the task).
-2. I followed the naming conventions from the Task, but the work Item is very confusing, i'd prefer Product.
+2. I followed the naming conventions from the Task, but the word `Item` is very confusing, i'd prefer `Product`.
 3. H2 is being used solely for the purpose of this assessment task. Of course we need the database and migrations.
 4. Use openapi-maven-plugin to automatically generate .ts types and api services, and also provide swagger documentation.
 5. Follow Dependency Inversion principle, extract interfaces for Service layer, and for Controller layer with OpenAPI annotations.
 6. We need more validation.
 7. Logging/monitoring. 
-8. There are also some TODOs in code.
+8. Security, authentication/authorisation.
+9. Do not use hardcoded credentials, of course.
+10. Use pre-built image for rabbitmq-publisher in the real project, instead of local build context.
+11. There are also some TODOs in the code.

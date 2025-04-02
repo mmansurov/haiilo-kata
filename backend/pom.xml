@@ -10,9 +10,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>supermarket-backend</artifactId>
+    <artifactId>haiilo-kata-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>supermarket-backend</name>
+    <name>haiilo-kata-backend</name>
     <description>Haiilo Supermarket Backend</description>
 
     <dependencies>

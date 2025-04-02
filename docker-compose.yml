@@ -18,7 +18,8 @@ services:
       retries: 5
 
   rabbitmq-publisher:
-    image: rabbitmq-publisher
+    build:
+      context: ./docker/rabbitmq-publisher
     environment:
       RABBITMQ_HOST: rabbitmq
       PUBLISH_FREQUENCY: 10
